@@ -3,11 +3,11 @@ In this article, learn to use the .NET MAUI PDF viewer control in a native Andro
 
 **Step 1:**
 
-Before creating a Android project, create a .NET MAUI class library project and delete the Platforms folder and the Class1.cs file from it. Then add the classes named **EmbeddedExtensions, EmbeddedPlatformApplication, EmbeddedWindowHandler, and EmbeddedWindowProvider** to the created .NET MAUI class library project. The required code for these classes are available [here](https://learn.microsoft.com/en-us/dotnet/maui/platform-integration/native-embedding?view=net-maui-8.0&pivots=devices-android)
+Before creating a Android project, create a .NET MAUI class library project and delete the Platforms folder and the Class1.cs file from it. Then add the classes named **EmbeddedExtensions, EmbeddedPlatformApplication, EmbeddedWindowHandler, and EmbeddedWindowProvider** to the created .NET MAUI class library project. The required code for these classes are available [here](https://learn.microsoft.com/en-us/dotnet/maui/platform-integration/native-embedding?view=net-maui-10.0&pivots=devices-android)
 
 **Step 2:**
 
-Next in the same solution, create a .NET MAUI single project. This project is used to register the handlers required to render the PDF viewer control. After including the project in the solution, follow the steps mentioned [here](https://learn.microsoft.com/en-us/dotnet/maui/platform-integration/native-embedding?view=net-maui-8.0&pivots=devices-windows#create-a-net-maui-single-project)
+Next in the same solution, create a .NET MAUI single project. This project is used to register the handlers required to render the PDF viewer control. After including the project in the solution, follow the steps mentioned [here](https://learn.microsoft.com/en-us/dotnet/maui/platform-integration/native-embedding?view=net-maui-10.0&pivots=devices-windows#create-a-net-maui-single-project)
 
 **Step 3:**
 
@@ -41,12 +41,12 @@ In the project file of the native Android application, add `<UseMaui>`true  `<Us
  
  ```xml
 <PropertyGroup>
-  <TargetFramework>net8.0-android</TargetFramework>
+  <TargetFramework>net10.0-android</TargetFramework>
   <OutputType>Exe</OutputType>
   <Nullable>enable</Nullable>
   <UseMaui>true</UseMaui>
   <ImplicitUsings>enable</ImplicitUsings>
-  <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
+  <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
 </PropertyGroup> 
  ```
 
@@ -71,6 +71,9 @@ public class MainActivity : Activity
     {
         base.OnCreate(savedInstanceState);
 
+        // Disable edge-to-edge rendering
+        WindowCompat.SetDecorFitsSystemWindows(Window, true);
+
         // Initialize the Maui app
         var mauiApp = MauiApp.Value;
         var _mauiContext = UseWindowContext
@@ -87,7 +90,7 @@ Create a new folder with the name “Assets” in the Android app project and in
 
 **Step 9:**
 
-Create the .NET MAUI PDF viewer control, convert it to a native view and add it as the Content of the OnCreate().
+Create the SfPdfViewer, convert it into a native Android view, and assign it as the activity’s content within the OnCreate() method.
  
  ```csharp
 protected override void OnCreate(Bundle? savedInstanceState)
@@ -104,9 +107,12 @@ protected override void OnCreate(Bundle? savedInstanceState)
             // Convert SfPdfViewer to an Android view
             Android.Views.View pdfViewerView = _pdfViewer.ToPlatform(_mauiContext);
 
-            // Directly set the pdfViewerView as the content view
-            SetContentView(pdfViewerView);
+            // Wrap the view to respect system window insets
+            var rootLayout = new Android.Widget.FrameLayout(this);
+            rootLayout.SetFitsSystemWindows(true);
+            rootLayout.AddView(pdfViewerView);
 
+            SetContentView(rootLayout);
      } 
  ```
 

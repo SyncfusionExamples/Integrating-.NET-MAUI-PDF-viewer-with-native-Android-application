@@ -1,4 +1,5 @@
 using Android.Views;
+using AndroidX.Core.View;
 using Microsoft.Maui.Embedding;
 using Microsoft.Maui.Platform;
 using Syncfusion.Maui.Buttons;
@@ -21,11 +22,14 @@ namespace NativeEmbeddingPDFViewerDemoAndroid.Droid
         });
 
         public static bool UseWindowContext = true;
-        private SfPdfViewer _pdfViewer;
+        private SfPdfViewer? _pdfViewer;
 
         protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+
+            //Disable edge-to-edge rendering
+            WindowCompat.SetDecorFitsSystemWindows(Window, true);
 
             // Initialize the Maui app
             var mauiApp = MauiApp.Value;
@@ -43,8 +47,19 @@ namespace NativeEmbeddingPDFViewerDemoAndroid.Droid
             // Convert SfPdfViewer to an Android view
             Android.Views.View pdfViewerView = _pdfViewer.ToPlatform(_mauiContext);
 
-            // Directly set the pdfViewerView as the content view
-            SetContentView(pdfViewerView);
+            //Wrap with inset-respecting layout
+            var rootLayout = new Android.Widget.FrameLayout(this)
+            {
+                LayoutParameters = new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MatchParent,
+                    ViewGroup.LayoutParams.MatchParent)
+            };
+
+            rootLayout.SetFitsSystemWindows(true);
+            rootLayout.AddView(pdfViewerView);
+
+            SetContentView(rootLayout);
+
         }
     }
 }
